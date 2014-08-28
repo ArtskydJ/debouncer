@@ -1,0 +1,30 @@
+{
+  "name": "debouncer",
+  "version": "0.0.1",
+  "main": "./index.js",
+  "author": {
+    "name": "ArtskydJ",
+    "email": "josephdykstra@gmail.com"
+  },
+  "description": "Does not allow an action to be executed repeatedly. The time delay can lengthen on each successful call.",
+  "keywords": [
+    "debounce",
+    "throttle"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtskydJ/debouncer"
+  },
+  "devDependencies": {
+    "tap": "~0.4.8"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "tap ./test/*.js"
+  },
+  "dependencies": {
+    "xtend": "^4.0.0"
+  }
+}
