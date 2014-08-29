@@ -16,7 +16,8 @@
     "url": "https://github.com/ArtskydJ/debouncer"
   },
   "devDependencies": {
-    "tap": "~0.4.8"
+    "tap": "~0.4.8",
+    "level-mem": "^0.18.0"
   },
   "directories": {
     "test": "test"
@@ -25,6 +26,8 @@
     "test": "tap ./test/*.js"
   },
   "dependencies": {
-    "xtend": "^4.0.0"
+    "xtend": "^4.0.0",
+    "level-sublevel": "^6.3.8",
+    "level-lock": "^1.0.1"
   }
 }
