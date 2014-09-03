@@ -14,42 +14,42 @@ var keyDbOptions = {
 //keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
 
 module.exports = function (db, constructorOptions) {
-	var thisDb = sublevel(db).sublevel('debouncer') //change this name to something else...
+	var debouncerDatabase = sublevel(db).sublevel('debouncer') //change this name to something else...
 	var options = xtend(defaultOptions, constructorOptions)
 	return function (key, callback) {
-		var unlock = lock(thisDb, key, 'rw')
+		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
-			return callback(null, false)
-		}
-		var cb = function (err, success) {
-			unlock()
-			callback(err, success)
-		}
-		thisDb.get(key, keyDbOptions, function (err, obj) { //change 'obj' to something else.
-			if (err) {
-				if (!err.notFound) { //Found the key
-					return cb(err)
-				}
-				obj = {       //Did not find the key
-					timeOfLastSuccess: new Date().getTime(),
-					numberOfSuccesses: 0
-				}
+			callback(null, false)
+		} else {
+			var cb = function (err, success) {
+				unlock()
+				callback(err, success)
 			}
-			var currentTime = new Date().getTime()
-			var waitMs = options.delayTimeMs(obj.numberOfSuccesses)
-
-			if (currentTime >= obj.timeOfLastSuccess + waitMs) {
-				obj.timeOfLastSuccess = currentTime
-				obj.numberOfSuccesses++
-				thisDb.put(key, obj, keyDbOptions, function (err) {
-					if (err) {
-						return cb(err)
+			debouncerDatabase.get(key, keyDbOptions, function (err, successStats) {
+				if (err && !err.notFound) { //error and found the key
+					cb(err)
+				} else {
+					if (err) { //error of not finding the key
+						successStats = {
+							timeOfLastSuccess: new Date().getTime(),
+							numberOfSuccesses: 0
+						}
 					}
-					cb(null, true) //Success
-				})
-			} else {
-				cb(null, false) //Not so much success
-			}
-		})
+
+					var currentTime = new Date().getTime()
+					var waitMs = options.delayTimeMs(successStats.numberOfSuccesses)
+
+					if (currentTime >= successStats.timeOfLastSuccess + waitMs) {
+						successStats.timeOfLastSuccess = currentTime
+						successStats.numberOfSuccesses++
+						debouncerDatabase.put(key, successStats, keyDbOptions, function (err) {
+							err? cb(err) : cb(null, true)
+						})
+					} else {
+						cb(null, false) //Unsuccessful
+					}
+				}
+			})
+		}
 	}
 }

@@ -2,11 +2,11 @@ var test = require('tap').test
 var Level = require('level-mem')
 var Debouncer = require('./')
 
-var delayTimeThing = require('./defaultStepDelay.js')
+var defaultStepDelay = require('./defaultStepDelay.js')
 
 test('check if debounce function works :)', function(t) {
 	var db = Level('whatever')
-	var debounce = Debouncer(db, {delayTimeMs: delayTimeThing}) //delayTimeMs
+	var debounce = Debouncer(db, {delayTimeMs: defaultStepDelay})
 
 	var runDebounce = function (ms, expected) {
 		setTimeout(function () {
@@ -17,14 +17,11 @@ test('check if debounce function works :)', function(t) {
 		}, ms)
 	}
 
-	runDebounce(100, true)   //Since this is the first time: allowed
-	runDebounce(900, false)  //Within 1 sec of success: not allowed
-	runDebounce(1200, true)  //Over 1 sec after success: allowed
-	runDebounce(3100, false) //Within 2 sec of success: not allowed
-	runDebounce(3300, true)  //Over 2 sec after success: allowed
-	runDebounce(6200, false) //Within 3 sec of success: not allowed
-	runDebounce(6400, true)  //Over 3 sec after success: allowed
-	runDebounce(9300, false) //Within 3 sec of success: not allowed
-	runDebounce(9500, true)  //Over 3 sec after success: allowed
-	setTimeout(t.end.bind(t), 9600)
+	var testTimes =       [100,  300,   1000,  1200, 3100,  3300, 6200,  6400, 7200,  9300,  9500]
+	var expectedResults = [true, false, false, true, false, true, false, true, false, false, true]
+	t.plan(testTimes.length*2) //2 tests in each debounce call
+
+	for (var i=0; i<testTimes.length; i++) {
+		runDebounce(testTimes[i], expectedResults[i])
+	}
 })
