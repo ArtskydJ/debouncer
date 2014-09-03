@@ -23,7 +23,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap ./test/*.js"
+    "test": "tap test.js"
   },
   "dependencies": {
     "xtend": "^4.0.0",
