@@ -14,6 +14,34 @@ test('check is defaultStepDelay function works as expected', function (t) {
 	}
 })
 
+test('race condition', function (t) {
+	var db = Level('whatever')
+	var debounce = Debouncer(db, {
+		delayTimeMs: function () {
+			return 0 //allows everything (no delay)
+		}
+	})
+
+	t.plan(10)
+
+	debounce('wat', function (err, allowed) {
+		t.notOk(err, 'no error 1')
+		t.type(err, 'null', 'error is null 1')
+		t.ok(allowed, 'allowed 1')
+		debounce('wat', function (err, allowed) {
+			t.notOk(err, 'no error 3')
+			t.type(err, 'null', 'error is null 3')
+			t.ok(allowed, 'allowed 3')
+		})
+	})
+	debounce('wat', function (err, allowed) {
+		t.notOk(err, 'no error 2')
+		t.type(err, 'null', 'error is null 2')
+		t.notOk(allowed, 'not allowed 2')
+		t.equal(allowed, false, 'allowed is false 2')
+	})
+})
+
 test('check if debounce function works :)', function (t) {
 	var db = Level('whatever')
 	var debounce = Debouncer(db, {delayTimeMs: defaultStepDelay})

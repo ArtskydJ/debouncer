@@ -20,6 +20,8 @@ var Debouncer = require('debouncer')
 
 ##Examples
 
+2 separate debounce instances:
+
 ```js
 var debounce = Debouncer(database, {
 	delayTimeMs: function (n) {
@@ -29,13 +31,13 @@ var debounce = Debouncer(database, {
 
 var callback = function (err, allowed) {
 	if (err) {
-		throw err
+		console.warn(err)
 	}
 	console.log(allowed)
 }
 
 debounce('foo', callback) //true (first time)
-debounce('foo', callback) //false
+debounce('foo', callback) //race condition, false
 
 setTimeout(function () {
 	debounce('foo', callback) //false
@@ -43,15 +45,17 @@ setTimeout(function () {
 }, 2500)
 
 setTimeout(function () {
-	debounce('foo', callback) //true
-	debounce('bar', callback) //false
+	debounce('foo', callback) //true, (been over 5 sec since last success)
+	debounce('bar', callback) //false, (been under 5 sec since last success)
 }, 5100)
 
 setTimeout(function () {
-	debounce('foo', callback) //true
-	debounce('bar', callback) //true
+	debounce('foo', callback) //true, (been over 5 sec since last success)
+	debounce('bar', callback) //true, (been over 5 sec since last success)
 }, 12000)
 ```
+
+Scaling delay:
 
 ```js
 var debounce = Debouncer(database, {
