@@ -4,7 +4,17 @@ var Debouncer = require('./')
 
 var defaultStepDelay = require('./defaultStepDelay.js')
 
-test('check if debounce function works :)', function(t) {
+test('check is defaultStepDelay function works as expected', function (t) {
+	var testAgainst =     [0, 1,    2,    5,    100,  1.7, -84, 17]
+	var expectedResults = [0, 1000, 2000, 3000, 3000, 1700, 0, 3000]
+	t.plan(testAgainst.length)
+
+	for (var i=0; i<testAgainst.length; i++) {
+		t.equal(defaultStepDelay(testAgainst[i]), expectedResults[i], 'defaultStepDelay works as expected')
+	}
+})
+
+test('check if debounce function works :)', function (t) {
 	var db = Level('whatever')
 	var debounce = Debouncer(db, {delayTimeMs: defaultStepDelay})
 
