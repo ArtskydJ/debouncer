@@ -6,7 +6,7 @@
     "name": "ArtskydJ",
     "email": "josephdykstra@gmail.com"
   },
-  "description": "Does not allow an action to be executed repeatedly. The time delay can lengthen on each successful call.",
+  "description": "Checks if it was called too recently. Useful for not allowing the same action in too close succession. The time delay can be lengthened on each successful call.",
   "keywords": [
     "debounce",
     "throttle"

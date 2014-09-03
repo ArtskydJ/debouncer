@@ -14,10 +14,10 @@ var keyDbOptions = {
 //keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
 
 module.exports = function (db, constructorOptions) {
-	var thisDb = sublevel(db).sublevel('debouncer') //change this name to something else...
+	var debouncerDatabase = sublevel(db).sublevel('debouncer') //change this name to something else...
 	var options = xtend(defaultOptions, constructorOptions)
 	return function (key, callback) {
-		var unlock = lock(thisDb, key, 'rw')
+		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
 			return callback(null, false)
 		}
@@ -25,31 +25,30 @@ module.exports = function (db, constructorOptions) {
 			unlock()
 			callback(err, success)
 		}
-		thisDb.get(key, keyDbOptions, function (err, obj) { //change 'obj' to something else.
+		debouncerDatabase.get(key, keyDbOptions, function (err, successStats) {
 			if (err) {
 				if (!err.notFound) { //Found the key
 					return cb(err)
 				}
-				obj = {       //Did not find the key
+				successStats = { //Did not find the key
 					timeOfLastSuccess: new Date().getTime(),
 					numberOfSuccesses: 0
 				}
 			}
 			var currentTime = new Date().getTime()
-			var waitMs = options.delayTimeMs(obj.numberOfSuccesses)
+			var waitMs = options.delayTimeMs(successStats.numberOfSuccesses)
 
-			if (currentTime >= obj.timeOfLastSuccess + waitMs) {
-				obj.timeOfLastSuccess = currentTime
-				obj.numberOfSuccesses++
-				thisDb.put(key, obj, keyDbOptions, function (err) {
+			if (currentTime >= successStats.timeOfLastSuccess + waitMs) {
+				successStats.timeOfLastSuccess = currentTime
+				successStats.numberOfSuccesses++
+				debouncerDatabase.put(key, successStats, keyDbOptions, function (err) {
 					if (err) {
 						return cb(err)
 					}
-					cb(null, true) //Success
+					return cb(null, true) //Successful
 				})
-			} else {
-				cb(null, false) //Not so much success
 			}
+			return cb(null, false) //Unsuccessful
 		})
 	}
 }
