@@ -20,12 +20,12 @@ var Debouncer = require('debouncer')
 
 ##Examples
 
-2 separate debounce instances:
+Use `debounce()` with different keys:
 
 ```js
 var debounce = Debouncer(database, {
 	delayTimeMs: function (n) {
-		return 5000 //always wait 5 seconds before releasing
+		return 5000 //always allow after 5 seconds
 	}
 })
 
