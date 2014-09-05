@@ -3,6 +3,9 @@ debouncer
 
 - [Install](#install)
 - [Require](#require)
+- [Notes on Stepping](#notes-on-stepping)
+- [Debouncer(db, opts)](#debouncerdb-opts)
+- [debounce(key, cb)](#debouncekey-cb)
 - [Examples](#examples)
 - [License](#license)
 
@@ -12,13 +15,35 @@ With NPM do:
 
 	npm install debouncer
 	
-##Require
+#Require
 
 ```js
 var Debouncer = require('debouncer')
 ```
 
-##Examples
+#Notes on Stepping
+
+Each time the action is allowed, the internal step number goes up. The step number can be used to determine how long to disallow the action. If the action is disallowed for 1 minute and is not attempted within 2 minutes, the internal step number goes down.
+
+If `delayTimeMs` is set as a function, it will be passed the step number as it's only argument. It is the function that turns the step number into the disallowed length of time.
+
+#Debouncer(db, opts)
+
+Returns a [`debounce()`](#debouncekey-cb) function.
+
+- `db` takes a level db object.
+- `opts` takes an object with the following properties:
+	- `delayTimeMs` can be a function or a number. If it is a function, the step is passed as it's first parameter. If it is a number, the step is multiplied by it.
+
+#debounce(key, cb)
+
+- `key` takes a string. One key will not cause a different key to get debounced.
+- `cb` takes a function with the following arguments:
+	- `err` is an error object, or `null`.
+	- `allowed` is whether or not the action is allowed.
+	- `remaining` is the remaining time (in ms) if the action was not allowed.
+
+#Examples
 
 Use `debounce()` with different keys:
 
@@ -37,7 +62,6 @@ var callback = function (err, allowed) {
 }
 
 debounce('foo', callback) //true (first time)
-debounce('foo', callback) //race condition, false
 
 setTimeout(function () {
 	debounce('foo', callback) //false
@@ -100,6 +124,6 @@ setTimeout(function () {
 }, 10400)
 ```
 
-##License
+#License
 
-[MIT](http://opensource.org/licenses/MIT)
+[VOL](veryopenlicense.com)
