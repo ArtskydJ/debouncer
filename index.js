@@ -1,21 +1,27 @@
-var xtend = require('xtend')
 var sublevel = require('level-sublevel')
 var lock = require('level-lock')
+var getActualStep = require('./getActualStep.js')
 
-var defaultOptions = {
-	//delayTimeMs: function (n) {return n*1000}
-}
 var keyDbOptions = {
 	keyEncoding: 'utf8',
 	valueEncoding: 'json'
 }
 
-//use level-ttl-cache to reset count
 //keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
 
 module.exports = function (db, constructorOptions) {
 	var debouncerDatabase = sublevel(db).sublevel('debouncer') //change this name to something else...
-	var options = xtend(defaultOptions, constructorOptions)
+	var stepDelay
+	if (typeof constructorOptions.delayTimeMs === "number") {
+		stepDelay = function (stepNumber) {
+			return stepNumber * constructorOptions.delayTimeMs
+		}
+	} else if (typeof constructorOptions.delayTimeMs === "function") {
+		stepDelay = constructorOptions.delayTimeMs
+	} else {
+		throw new Error("delayTimeMs is not a number or a function")
+	}
+
 	return function (key, callback) {
 		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
@@ -32,16 +38,17 @@ module.exports = function (db, constructorOptions) {
 					if (err) { //error of not finding the key
 						successStats = {
 							timeOfLastSuccess: new Date().getTime(),
-							numberOfSuccesses: 0
+							step: 0
 						}
 					}
 
 					var currentTime = new Date().getTime()
-					var waitMs = options.delayTimeMs(successStats.numberOfSuccesses)
+					successStats.step = getActualStep(stepDelay, successStats.step, successStats.timeOfLastSuccess, currentTime)
+					var waitMs = stepDelay(successStats.step)
 
 					if (currentTime >= successStats.timeOfLastSuccess + waitMs) {
 						successStats.timeOfLastSuccess = currentTime
-						successStats.numberOfSuccesses++
+						successStats.step++
 						debouncerDatabase.put(key, successStats, keyDbOptions, function (err) {
 							err? cb(err) : cb(null, true)
 						})
