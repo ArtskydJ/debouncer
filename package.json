@@ -1,6 +1,6 @@
 {
   "name": "debouncer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./index.js",
   "author": {
     "name": "ArtskydJ",
@@ -9,7 +9,11 @@
   "description": "Checks if it was called too recently. Useful for not allowing the same action in too close succession. The time delay can be lengthened on each successful call.",
   "keywords": [
     "debounce",
-    "throttle"
+    "throttle",
+    "rate",
+    "limit",
+    "scaling",
+    "ratelimit"
   ],
   "repository": {
     "type": "git",
@@ -23,7 +27,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap test.js"
+    "test": "tap test/*.js"
   },
   "dependencies": {
     "level-lock": "^1.0.1"
