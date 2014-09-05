@@ -1,4 +1,3 @@
-var sublevel = require('level-sublevel')
 var lock = require('level-lock')
 var getActualStep = require('./getActualStep.js')
 
@@ -9,8 +8,8 @@ var keyDbOptions = {
 
 //keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
 
-module.exports = function (db, constructorOptions) {
-	var debouncerDatabase = sublevel(db).sublevel('debouncer') //change this name to something else...
+module.exports = function Debouncer(db, constructorOptions) {
+	var debouncerDatabase = db //change this name to something else...
 	var stepDelay
 	if (typeof constructorOptions.delayTimeMs === "number") {
 		stepDelay = function (stepNumber) {
@@ -22,14 +21,19 @@ module.exports = function (db, constructorOptions) {
 		throw new Error("delayTimeMs is not a number or a function")
 	}
 
-	return function (key, callback) {
+	return function debouncer(key, callback, retryNumber) {
+		retryNumber = retryNumber || 0
 		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
-			callback(null, false)
+			if (retryNumber >= 3) {
+				callback(new Error('could not establish lock on '+key), false)
+			} else {
+				setTimeout(debouncer.bind(null, key, callback, retryNumber+1), 50)
+			}
 		} else {
-			var cb = function (err, success) {
+			var cb = function () {
 				unlock()
-				callback(err, success)
+				callback.apply(null, arguments)
 			}
 			debouncerDatabase.get(key, keyDbOptions, function (err, successStats) {
 				if (err && !err.notFound) { //error and found the key
@@ -53,7 +57,7 @@ module.exports = function (db, constructorOptions) {
 							err? cb(err) : cb(null, true)
 						})
 					} else {
-						cb(null, false) //Unsuccessful
+						cb(null, false, successStats.timeOfLastSuccess + waitMs - currentTime) //Unsuccessful
 					}
 				}
 			})
