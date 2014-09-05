@@ -21,12 +21,16 @@ module.exports = function Debouncer(db, constructorOptions) {
 		throw new Error("delayTimeMs is not a number or a function")
 	}
 
-	return function debouncer(key, callback, retryNumber) {
+	return function debouncer(key, callback, retryNumber) { //people should only pass in key and callback
 		retryNumber = retryNumber || 0
 		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
 			if (retryNumber >= 3) {
-				callback(new Error('could not establish lock on '+key), false)
+				//Uses process.nexttick in case someone passes in a retryNumber
+				//larger than 3 when the key is locked.
+				//This way their callback will always execute in a different
+				//stack, avoiding confusion and angry programmers. :)
+				process.nextTick(callback.bind(null, new Error('could not establish lock on '+key), false))
 			} else {
 				setTimeout(debouncer.bind(null, key, callback, retryNumber+1), 50)
 			}
@@ -35,29 +39,29 @@ module.exports = function Debouncer(db, constructorOptions) {
 				unlock()
 				callback.apply(null, arguments)
 			}
-			debouncerDatabase.get(key, keyDbOptions, function (err, successStats) {
+			debouncerDatabase.get(key, keyDbOptions, function (err, stepInfo) {
 				if (err && !err.notFound) { //error and found the key
 					cb(err)
 				} else {
 					if (err) { //error of not finding the key
-						successStats = {
-							timeOfLastSuccess: new Date().getTime(),
+						stepInfo = {
+							lastStepTime: new Date().getTime(),
 							step: 0
 						}
 					}
 
 					var currentTime = new Date().getTime()
-					successStats.step = getActualStep(stepDelay, successStats.step, successStats.timeOfLastSuccess, currentTime)
-					var waitMs = stepDelay(successStats.step)
+					stepInfo.step = getActualStep(stepDelay, stepInfo.step, stepInfo.lastStepTime, currentTime)
+					var waitMs = stepDelay(stepInfo.step)
 
-					if (currentTime >= successStats.timeOfLastSuccess + waitMs) {
-						successStats.timeOfLastSuccess = currentTime
-						successStats.step++
-						debouncerDatabase.put(key, successStats, keyDbOptions, function (err) {
+					if (currentTime >= stepInfo.lastStepTime + waitMs) {
+						stepInfo.lastStepTime = currentTime
+						stepInfo.step++
+						debouncerDatabase.put(key, stepInfo, keyDbOptions, function (err) {
 							err? cb(err) : cb(null, true)
 						})
 					} else {
-						cb(null, false, successStats.timeOfLastSuccess + waitMs - currentTime) //Unsuccessful
+						cb(null, false, stepInfo.lastStepTime + waitMs - currentTime) //Unsuccessful
 					}
 				}
 			})
