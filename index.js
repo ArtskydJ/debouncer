@@ -1,5 +1,6 @@
 var lock = require('level-lock')
 var getActualStep = require('./getActualStep.js')
+var StepDelay = require('./stepDelay.js')
 
 var keyDbOptions = {
 	keyEncoding: 'utf8',
@@ -9,17 +10,8 @@ var keyDbOptions = {
 //keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
 
 module.exports = function Debouncer(db, constructorOptions) {
-	var debouncerDatabase = db //change this name to something else...
-	var stepDelay
-	if (typeof constructorOptions.delayTimeMs === "number") {
-		stepDelay = function (stepNumber) {
-			return stepNumber * constructorOptions.delayTimeMs
-		}
-	} else if (typeof constructorOptions.delayTimeMs === "function") {
-		stepDelay = constructorOptions.delayTimeMs
-	} else {
-		throw new Error("delayTimeMs is not a number or a function")
-	}
+	var debouncerDatabase = db
+	var stepDelay = StepDelay(constructorOptions.delayTimeMs)
 
 	return function debouncer(key, callback, retryNumber) { //people should only pass in key and callback
 		retryNumber = retryNumber || 0

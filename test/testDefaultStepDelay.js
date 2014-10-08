@@ -1,7 +1,7 @@
 var test = require('tap').test
 var defaultStepDelay = require('../testsDefaultStepDelay.js')
 
-test('check is defaultStepDelay function works as expected', function (t) {
+test('check if defaultStepDelay function works as expected', function (t) {
 	[
 		{attempt: 0,   expected: 0},
 		{attempt: 1,   expected: 1000},

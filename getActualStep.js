@@ -10,10 +10,7 @@ module.exports = function getActualStep(delayMs, step, lastStepTime, currentTime
 	return step
 }
 
-
-/*
-//If javascript ever implements tail call optimization, use pretty code below:
-
+/* If javascript ever implements tail call optimization, use pretty code below:
 module.exports = function getActualStep(delayMs, step, lastStepTime, currentTime) {
 	if (step === 0) {
 		return step
@@ -26,6 +23,4 @@ module.exports = function getActualStep(delayMs, step, lastStepTime, currentTime
 	} else {
 		return step
 	}
-}
-
-*/
+} */

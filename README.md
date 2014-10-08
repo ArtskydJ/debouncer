@@ -6,7 +6,8 @@ debouncer
 - [Notes on Stepping](#notes-on-stepping)
 - [Debouncer(db, opts)](#debouncerdb-opts)
 - [debounce(key, cb)](#debouncekey-cb)
-- [Examples](#examples)
+- [Instantiation Examples](#instantiation-examples)
+- [Full Examples](#full-examples)
 - [License](#license)
 
 ##Install
@@ -33,7 +34,10 @@ Returns a [`debounce()`](#debouncekey-cb) function.
 
 - `db` takes a level db object.
 - `opts` takes an object with the following properties:
-	- `delayTimeMs` can be a function or a number. If it is a function, the step is passed as it's first parameter. If it is a number, the step is multiplied by it.
+	- `delayTimeMs` can be a function, a number, or an array.
+		- If it is a function, the step is passed as it's first parameter, and the return value is the delay time. `return func(step)`
+		- If it is a number, the return value is the step multiplied by the number. `return number * step`
+		- If it is an array, the return value is the array element at the index of step. If step is to large, it defaults to the last element. `return array[step]`
 
 #debounce(key, cb)
 
@@ -43,13 +47,72 @@ Returns a [`debounce()`](#debouncekey-cb) function.
 	- `allowed` is whether or not the action is allowed.
 	- `remaining` is the remaining time (in ms) if the action was not allowed.
 
-#Examples
+#Instantiation Examples
+
+###Function
+
+Always allow after 5 seconds since last allowance:
+
+```js
+var debounce = Debouncer(database, {
+	delayTimeMs: function (step) { //ignores `step`
+		return 5000
+	}
+})
+```
+
+Allow after a random number of seconds between 0 and step: (I am pretty sure that this is not useful in any way.)
+
+```js
+var debounce = Debouncer(database, {
+	delayTimeMs: function (step) {
+		return Math.floor(Math.random() * step) * 1000
+	}
+})
+
+```
+
+###Number
+
+Add 2 seconds after each allowance:
+
+```js
+var debounce = Debouncer(database, {
+	delayTimeMs: 2000
+})
+```
+
+###Array
+
+1. Allow right away.
+2. Allow after 1 second.
+3. Allow after 5 seconds.
+4. Allow after 20 seconds.
+5. Allow after 20 seconds.
+6. Allow after 20 seconds.
+7. You get it...
+
+```js
+var debounce = Debouncer(database, {
+	delayTimeMs: [0, 1000, 5000, 20000]
+})
+```
+
+This will act like the one above. Element 0 is set to 0, but the original object is not modified.
+
+```js
+var debounce = Debouncer(database, {
+	delayTimeMs: [1000, 5000, 20000]
+})
+```
+
+#Full Examples
 
 Use `debounce()` with different keys:
 
 ```js
 var debounce = Debouncer(database, {
-	delayTimeMs: function (n) {
+	delayTimeMs: function (step) { //ignores step
 		return 5000 //always allow after 5 seconds
 	}
 })
@@ -83,9 +146,11 @@ Scaling delay:
 
 ```js
 var debounce = Debouncer(database, {
-	delayTimeMs: function (n) {
-		return n*1000 //allow after n seconds (n is the number of successes)
+	delayTimeMs: function (step) {
+		return step*1000 //allow after `step` seconds (`step` is the number of successes)
 	}
+	//same as doing the following:
+	//delayTimeMs: 1000
 })
 
 var callback = function (err, allowed) {
