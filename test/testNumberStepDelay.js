@@ -3,7 +3,7 @@ var StepDelay = require('../stepDelay.js')
 
 test('check if stepDelay.js with a number works as expected', function (t) {
 	var delayer = StepDelay(1000)
-	var testObjects = [
+	;[
 		{attempt: 0,   expected: 0},
 		{attempt: 1,   expected: 1000},
 		{attempt: 2,   expected: 2000},

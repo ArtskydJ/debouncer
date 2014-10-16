@@ -2,8 +2,8 @@ var test = require('tap').test
 var StepDelay = require('../stepDelay.js')
 
 test('check if stepDelay.js with an array works as expected', function (t) {
-	var delayer = StepDelay([0, 1000, 2000, 3000]);
-	[
+	var delayer = StepDelay([0, 1000, 2000, 3000])
+	;[
 		{attempt: 0,   expected: 0},
 		{attempt: 1,   expected: 1000},
 		{attempt: 2,   expected: 2000},
@@ -19,8 +19,8 @@ test('check if stepDelay.js with an array works as expected', function (t) {
 })
 
 test('check if stepDelay.js with an array starting w/o a 0 works as expected', function (t) {
-	var delayer = StepDelay([1000, 2000, 3000]);
-	[
+	var delayer = StepDelay([1000, 2000, 3000])
+	;[
 		{attempt: 0,   expected: 0},
 		{attempt: 1,   expected: 1000},
 		{attempt: 2,   expected: 2000},
