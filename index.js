@@ -1,46 +1,39 @@
 var lock = require('level-lock')
 var getActualStep = require('./getActualStep.js')
 var StepDelay = require('./stepDelay.js')
+var xtend = require('xtend')
 
-var keyDbOptions = {
-	keyEncoding: 'utf8',
-	valueEncoding: 'json'
-}
-
-//keys are sessionid's, properties: time_last_clicked, num_of_successful_clicks
+//keys are sessionid's, properties: lastStepTime, step
 
 module.exports = function Debouncer(db, constructorOptions) {
 	var debouncerDatabase = db
 	var stepDelay = StepDelay(constructorOptions.delayTimeMs)
 
-	return function debouncer(key, callback, retryNumber) { //people should only pass in key and callback
-		retryNumber = retryNumber || 0
+	return function debouncer(key, callback, retriedNumber) { //people should only pass in key and callback
+		retriedNumber = retriedNumber || 0
 		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
-			if (retryNumber >= 3) {
-				//Uses process.nexttick in case someone passes in a retryNumber
-				//larger than 3 when the key is locked.
-				//This way their callback will always execute in a different
-				//stack, avoiding confusion and angry programmers. :)
+			if (retriedNumber >= 3) {
+				//Uses process.nexttick in case someone passes 'retriedNumber' a number that is >= 3 when the key is locked.
+				//This way their callback always executes in a different stack
 				process.nextTick(callback.bind(null, new Error('could not establish lock on '+key), false))
 			} else {
-				setTimeout(debouncer.bind(null, key, callback, retryNumber+1), 50)
+				setTimeout(debouncer.bind(null, key, callback, retriedNumber+1), 50)
 			}
 		} else {
 			var cb = function () {
 				unlock()
 				callback.apply(null, arguments)
 			}
-			debouncerDatabase.get(key, keyDbOptions, function (err, stepInfo) {
+			debouncerDatabase.get(key, function (err, stepInfo) {
 				if (err && !err.notFound) { //error and found the key
 					cb(err)
 				} else {
-					if (err) { //error of not finding the key
-						stepInfo = {
-							lastStepTime: new Date().getTime(),
-							step: 0
-						}
-					}
+					try { stepInfo = JSON.parse(stepInfo) } catch (e) {}
+					stepInfo = xtend({
+						lastStepTime: new Date().getTime(),
+						step: 0
+					}, stepInfo)
 
 					var currentTime = new Date().getTime()
 					stepInfo.step = getActualStep(stepDelay, stepInfo.step, stepInfo.lastStepTime, currentTime)
@@ -49,7 +42,7 @@ module.exports = function Debouncer(db, constructorOptions) {
 					if (currentTime >= stepInfo.lastStepTime + waitMs) {
 						stepInfo.lastStepTime = currentTime
 						stepInfo.step++
-						debouncerDatabase.put(key, stepInfo, keyDbOptions, function (err) {
+						debouncerDatabase.put(key, JSON.stringify(stepInfo), function (err) {
 							err? cb(err) : cb(null, true)
 						})
 					} else {
