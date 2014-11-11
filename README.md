@@ -191,4 +191,4 @@ setTimeout(function () {
 
 #License
 
-[VOL](veryopenlicense.com)
+[VOL](http://veryopenlicense.com/)
