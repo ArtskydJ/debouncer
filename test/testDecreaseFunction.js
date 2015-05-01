@@ -1,6 +1,6 @@
-var test = require('tap').test
+var test = require('tape')
 var getActualStep = require('../getActualStep.js')
-var defaultStepDelay = require('../testsDefaultStepDelay.js')
+var defaultStepDelay = require('./helpers/defaultStepDelay.js')
 
 test('test decrease function', function (t) {
 	[

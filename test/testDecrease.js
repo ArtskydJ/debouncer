@@ -1,7 +1,7 @@
-var test = require('tap').test
+var test = require('tape')
 var Level = require('level-mem')
 var Debouncer = require('..')
-var defaultStepDelay = require('../testsDefaultStepDelay.js')
+var defaultStepDelay = require('./helpers/defaultStepDelay.js')
 
 test('test if decrease works', function (t) {
 	var debounce = Debouncer(Level('whatever'), {delayTimeMs: defaultStepDelay})

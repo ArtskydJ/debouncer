@@ -1,6 +1,6 @@
 {
   "name": "debouncer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "./index.js",
   "author": {
     "name": "ArtskydJ",
@@ -20,14 +20,14 @@
     "url": "https://github.com/ArtskydJ/debouncer"
   },
   "devDependencies": {
-    "tap": "~0.4.8",
+    "tape": "^4.0.0",
     "level-mem": "^0.18.0"
   },
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "tape test/*.js"
   },
   "dependencies": {
     "level-lock": "^1.0.1",

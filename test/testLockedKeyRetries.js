@@ -1,4 +1,4 @@
-var test = require('tap').test
+var test = require('tape')
 var Level = require('level-mem')
 var lock = require('level-lock')
 var Debouncer = require('..')
@@ -14,7 +14,7 @@ test('lock retry works', function (t) {
 	})
 
 	var unlock = lock(db, 'wat', 'rw')
-	t.type(unlock, 'function', 'no lock on "wat" right now')
+	t.equal(typeof unlock, 'function', 'no lock on "wat" right now')
 
 	debounce('wat', function (err, allowed, remaining) {
 		t.notOk(err, 'retry worked')
@@ -33,7 +33,7 @@ test('lock error works', function (t) {
 	})
 
 	var unlock = lock(db, 'wat', 'rw')
-	t.type(unlock, 'function', 'no lock on "wat" right now')
+	t.equal(typeof unlock, 'function', 'no lock on "wat" right now')
 
 	debounce('wat', function (err, allowed, remaining) {
 		t.ok(err, 'error')

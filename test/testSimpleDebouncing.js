@@ -1,7 +1,7 @@
-var test = require('tap').test
+var test = require('tape')
 var Level = require('level-mem')
 var Debouncer = require('..')
-var defaultStepDelay = require('../testsDefaultStepDelay.js')
+var defaultStepDelay = require('./helpers/defaultStepDelay.js')
 
 test('check if debounce function works :)', function (t) {
 	var db = Level('whatever')
@@ -32,4 +32,3 @@ test('check if debounce function works :)', function (t) {
 	t.plan(testObjects.length * 2) //2 tests in each debounce call
 	testObjects.forEach(runDebounce)
 })
-

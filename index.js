@@ -9,16 +9,15 @@ module.exports = function Debouncer(db, constructorOptions) {
 	var debouncerDatabase = db
 	var stepDelay = StepDelay(constructorOptions.delayTimeMs)
 
-	return function debouncer(key, callback, retriedNumber) { //people should only pass in key and callback
-		retriedNumber = retriedNumber || 0
+	function debouncer(retriedNumber, key, callback) { //people should only pass in key and callback
 		var unlock = lock(debouncerDatabase, key, 'rw')
 		if (!unlock) {
 			if (retriedNumber >= 3) {
-				//Uses process.nexttick in case someone passes 'retriedNumber' a number that is >= 3 when the key is locked.
-				//This way their callback always executes in a different stack
-				process.nextTick(callback.bind(null, new Error('could not establish lock on '+key), false))
+				callback(new Error('could not establish lock on ' + key), false)
 			} else {
-				setTimeout(debouncer.bind(null, key, callback, retriedNumber+1), 50)
+				setTimeout(function () {
+					debouncer(retriedNumber + 1, key, callback)
+				}, 50)
 			}
 		} else {
 			var cb = function () {
@@ -52,4 +51,6 @@ module.exports = function Debouncer(db, constructorOptions) {
 			})
 		}
 	}
+
+	return debouncer.bind(null, 0)
 }

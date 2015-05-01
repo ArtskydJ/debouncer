@@ -1,4 +1,4 @@
-var test = require('tap').test
+var test = require('tape')
 var StepDelay = require('../stepDelay.js')
 
 test('check if stepDelay.js with an array works as expected', function (t) {
@@ -34,4 +34,3 @@ test('check if stepDelay.js with an array starting w/o a 0 works as expected', f
 	})
 	t.end()
 })
-
