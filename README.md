@@ -2,7 +2,8 @@ debouncer
 =============
 
 [![Build Status](https://travis-ci.org/ArtskydJ/debouncer.svg)](https://travis-ci.org/ArtskydJ/debouncer)
-
+[![Dependency Status](https://david-dm.org/artskydj/debouncer.svg)](https://david-dm.org/artskydj/debouncer)
+[![devDependency Status](https://david-dm.org/artskydj/debouncer/dev-status.svg)](https://david-dm.org/artskydj/debouncer#info=devDependencies)
 
 # notes on stepping
 
