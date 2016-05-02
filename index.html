@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Debouncer Demo</title>
+	<script src="https://wzrd.in/standalone/debouncer@1"></script>
+	<script src="https://wzrd.in/standalone/level-mem@0.18"></script>
+	<script>
+		window.setUpClickHandler = function setUpClickHandler(className, delayTimeMs) {
+			var debounce = debouncer(new levelMem(), {
+				delayTimeMs: delayTimeMs
+			})
+			var btn = document.querySelector('button.' + className)
+			btn.onclick = function () {
+				debounce('key', function dbnc(err, allowed, remaining) {
+					var status = document.querySelector('.status.' + className)
+					if (err) {
+						status.innerHTML = String(err)
+					} else if (allowed) {
+						status.innerHTML = 'Attempt was allowed'
+					} else if (remaining) {
+						status.innerHTML = 'Try waiting ' + Math.ceil(remaining / 100) / 10 + ' seconds.'
+						setTimeout(function () { status.innerHTML = '&nbsp' }, remaining)
+					}
+				})
+			}
+		}
+	</script>
+	<style>
+		body {
+			background-color: #9BF;
+			font-family: arial, sans-serif;
+			color: #009;
+		}
+		h1,h2,h3 {
+			margin: 0;
+			color: #009;
+		}
+		.container {
+			margin: 0 auto;
+			width: 600px;
+		}
+		code {
+			display: block;
+			background-color: #009;
+			color: #fff;
+			font-weight: bold;
+			padding: 15px;
+			margin: 10px 0;
+		}
+		.section {
+			background-color: #56F;
+			padding: 15px;
+			margin-bottom: 30px;
+		}
+		button {
+			color: #BDF;
+			background-color: #009;
+			border: 1px solid #56F;
+			padding: 12px;
+			font-size: 10pt;
+			font-weight: bold;
+		}
+		button:hover {
+			background-color: #007;
+			border: 1px solid #34F;
+		}
+		button:active {
+			background-color: #00C;
+			border: 1px solid #9AF;
+		}
+		button:focus {
+			background-color: #00B;
+			border: 1px solid #78F;
+		}
+		.center {
+			text-align: center;
+		}
+		.status {
+			margin: 10px;
+			height: 15px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="section center">
+			<h1>Debouncer</h1>
+		</div>
+		<div class="section">
+			<h2>Number mode</h2>
+			<code>
+				var debounce = debouncer(db, {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;delayTimeMs: 1000<br>
+				})
+			</code>
+			<button class="one" type="button">Try Me!</button>
+			<span class="status one"></span>
+		</div>
+
+		<div class="section">
+			<h2>Array</h2>
+			<code>
+				var debounce = debouncer(db, {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;delayTimeMs: [ 1000, 2000, 3000 ]<br>
+				})
+			</code>
+			<button class="two" type="button">Try Me!</button>
+			<span class="status two"></span>
+		</div>
+
+		<div class="section">
+			<h2>Function</h2>
+			<code>
+				var debounce = debouncer(db, {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;delayTimeMs: function (step) {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 5000<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+				})
+			</code>
+			<button class="three" type="button">Try Me!</button>
+			<span class="status three"></span>
+		</div>
+
+		<div class="section center">
+			<a href="https://github.com/ArtskydJ/debouncer/tree/gh-pages">Demo</a> of
+			<a href="https://github.com/ArtskydJ/debouncer">Debouncer</a> by
+			<a href="http://www.josephdykstra.com">Joseph Dykstra</a>
+		</div>
+
+		<script>
+			setUpClickHandler('one', 1000)
+			setUpClickHandler('two', [ 1000, 2000, 3000 ])
+			setUpClickHandler('three', function (step) {
+				console.log(step)
+				return 5000
+			})
+		</script>
+	</div>
+</body>
+</html>
