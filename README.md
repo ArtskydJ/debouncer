@@ -3,7 +3,7 @@ debouncer
 
 [![Build Status](https://travis-ci.org/ArtskydJ/debouncer.svg)](https://travis-ci.org/ArtskydJ/debouncer)
 
-# [Demo](http://artskydj.github.io/debouncer/)
+### [demo](http://artskydj.github.io/debouncer/)
 
 # notes on stepping
 
