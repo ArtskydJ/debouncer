@@ -46,6 +46,13 @@ setTimeout(function () {
 	debounce('bar', callback) //true, (been over 5 sec since last success)
 }, 12000)
 ```
+Here's what it looks like in a timeline:
+```
+seconds   0 1 2 3 4 5 6 7 8 9 10  12
+          | | | | | | | | | | | | |
+foo       Y    N    Y             Y
+bar            Y    N             Y
+```
 
 Scaling delay:
 
